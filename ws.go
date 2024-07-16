@@ -16,7 +16,7 @@ func handleWS(w http.ResponseWriter, r *http.Request) (err error) {
 
 	h, ok := w.(http.Hijacker)
 	if !ok {
-		return errors.New("not an hijacker")
+		return errors.New("not a hijacker")
 	}
 
 	hj, _, err := h.Hijack()
@@ -34,8 +34,8 @@ func handleWS(w http.ResponseWriter, r *http.Request) (err error) {
 		_, err := io.Copy(w, r)
 		c <- err
 	}
-	go f(d, hj)
 	go f(hj, d)
+	go f(d, hj)
 	err = <-c
 	return
 }

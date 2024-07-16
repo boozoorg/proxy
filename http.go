@@ -8,7 +8,7 @@ import (
 func handleHTTP(w http.ResponseWriter, r *http.Request, c *http.Client) (err error) {
 	resp, err := c.Do(r)
 	if err != nil {
-		return err
+		return
 	}
 
 	defer resp.Body.Close()
