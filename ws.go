@@ -14,28 +14,27 @@ func handleWS(w http.ResponseWriter, r *http.Request) (err error) {
 	}
 	defer d.Close()
 
-	h, ok := w.(http.Hijacker)
+	hj, ok := w.(http.Hijacker)
 	if !ok {
 		return errors.New("not a hijacker")
 	}
 
-	hj, _, err := h.Hijack()
+	s, _, err := hj.Hijack()
 	if err != nil {
 		return
 	}
-	defer hj.Close()
+	defer s.Close()
 
 	if err = r.Write(d); err != nil {
 		return
 	}
 
 	c := make(chan error, 2)
-	f := func(w io.Writer, r io.Reader) {
-		_, err := io.Copy(w, r)
+	f := func(dst io.Writer, src io.Reader) {
+		_, err := io.Copy(dst, src)
 		c <- err
 	}
-	go f(hj, d)
-	go f(d, hj)
-	err = <-c
-	return
+	go f(s, d)
+	go f(d, s)
+	return <-c
 }
